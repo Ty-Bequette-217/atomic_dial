@@ -8922,6 +8922,10 @@
 		(uuid "7be18012-c699-48d6-b148-f693bfc6fcea")
 	)
 	(no_connect
+		(at 132.08 69.85)
+		(uuid "842cd72c-a545-473d-a1cf-414e09cf2c02")
+	)
+	(no_connect
 		(at 441.96 91.44)
 		(uuid "86447b1d-4611-4e29-868c-4ac93f547cbf")
 	)
@@ -9008,6 +9012,10 @@
 	(no_connect
 		(at 132.08 82.55)
 		(uuid "db742b9e-1fed-4e0c-b783-f911ab5116aa")
+	)
+	(no_connect
+		(at 132.08 67.31)
+		(uuid "ddddde43-168d-4646-b244-168afa6cdeb1")
 	)
 	(no_connect
 		(at 143.51 27.94)
@@ -9969,16 +9977,6 @@
 	)
 	(wire
 		(pts
-			(xy 378.46 40.64) (xy 401.32 40.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3dbc1b14-20e2-4dcb-8347-d33c13d3f0e0")
-	)
-	(wire
-		(pts
 			(xy 158.75 181.61) (xy 167.64 181.61)
 		)
 		(stroke
@@ -10116,16 +10114,6 @@
 			(type default)
 		)
 		(uuid "469f89fd-f629-46b7-b106-a0088168c9ec")
-	)
-	(wire
-		(pts
-			(xy 378.46 43.18) (xy 401.32 43.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "47957453-fce7-4d98-833c-e34bb8a852a5")
 	)
 	(wire
 		(pts
@@ -11359,16 +11347,6 @@
 	)
 	(wire
 		(pts
-			(xy 132.08 67.31) (xy 148.59 67.31)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "98970bf0-1168-4b4e-a1c9-3b0c8d7eaacf")
-	)
-	(wire
-		(pts
 			(xy 127 167.64) (xy 127 168.91)
 		)
 		(stroke
@@ -11986,16 +11964,6 @@
 			(type default)
 		)
 		(uuid "c2a9d834-7cb1-4ec5-b0ba-ae56215ff9fc")
-	)
-	(wire
-		(pts
-			(xy 132.08 69.85) (xy 148.59 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c67ad10d-2f75-4ec6-a139-47058f7f06b2")
 	)
 	(wire
 		(pts
@@ -13067,7 +13035,7 @@
 		)
 		(uuid "12533afc-88c2-49da-8dc7-4cd02174b57e")
 	)
-	(label "GPIO1"
+	(label "GPIO21"
 		(at 340.36 50.8 0)
 		(effects
 			(font
@@ -13197,16 +13165,6 @@
 		)
 		(uuid "2911b652-f174-4f98-9700-b402c471d0cc")
 	)
-	(label "USB_SERIAL_TXO"
-		(at 148.59 67.31 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "2a6075ae-c7fa-41db-86b8-3f996740bdc2")
-	)
 	(label "GPIO26"
 		(at 509.27 83.82 0)
 		(effects
@@ -13226,16 +13184,6 @@
 			(justify right bottom)
 		)
 		(uuid "2ec9be40-1d5a-4e2d-8a4d-4be2d3c079d5")
-	)
-	(label "USB_SERIAL_TXO"
-		(at 398.78 43.18 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "2ee28fa9-d785-45a1-9a1b-1be02ad8cd0b")
 	)
 	(label "GPIO3"
 		(at 441.96 38.1 180)
@@ -13857,16 +13805,6 @@
 		)
 		(uuid "8e697b96-cf4c-43ef-b321-8c2422b088bf")
 	)
-	(label "USB_SERIAL_RXI"
-		(at 148.59 69.85 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "8f12311d-6f4c-4d28-a5bc-d6cb462bade7")
-	)
 	(label "SWD"
 		(at 509.27 91.44 0)
 		(effects
@@ -13937,7 +13875,7 @@
 		)
 		(uuid "92574e8a-729f-48de-afcb-97b4f5e826f8")
 	)
-	(label "GPIO0"
+	(label "GPIO20"
 		(at 340.36 40.64 0)
 		(effects
 			(font
@@ -14507,26 +14445,6 @@
 		)
 		(uuid "f4d2c16b-1a0d-4e7c-ae86-bf3a77112df8")
 	)
-	(label "GPIO22"
-		(at 378.46 40.64 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f8441cc6-353c-4895-893a-2a3cbff17adf")
-	)
-	(label "USB_SERIAL_RXI"
-		(at 398.78 40.64 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "fb0bf2a0-d317-42f7-b022-b5e05481f6be")
-	)
 	(label "STRAIN_E-"
 		(at 121.92 191.77 0)
 		(effects
@@ -14536,16 +14454,6 @@
 			(justify left bottom)
 		)
 		(uuid "fb9a832c-737d-49fb-bbb4-29a0ba3e8178")
-	)
-	(label "GPIO21"
-		(at 378.46 43.18 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "fdb66200-578f-4612-984d-591d991b0c02")
 	)
 	(label "MAG_CLK"
 		(at 118.11 144.78 0)
@@ -24621,136 +24529,6 @@
 			(project ""
 				(path "/5edcefbe-9766-42c8-9529-28d0ec865573"
 					(reference "Z8")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint_Small")
-		(at 401.32 40.64 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "00000000-0000-0000-0000-000062379e81")
-		(property "Reference" "TP15"
-			(at 402.5392 39.4716 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "TX"
-			(at 402.59 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Modified:TestPoint_Pad_D2.0mm_ValueSilk"
-			(at 406.4 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 406.4 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 401.32 40.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "d88397a1-27ae-408d-87ab-cc3630533b80")
-		)
-		(instances
-			(project ""
-				(path "/5edcefbe-9766-42c8-9529-28d0ec865573"
-					(reference "TP15")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint_Small")
-		(at 401.32 43.18 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "00000000-0000-0000-0000-0000623a126c")
-		(property "Reference" "TP16"
-			(at 402.5392 42.0116 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "RX"
-			(at 402.59 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Modified:TestPoint_Pad_D2.0mm_ValueSilk"
-			(at 406.4 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 406.4 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 401.32 43.18 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "3aec649b-7bfb-45b0-aab7-a7fd1c3cd2bb")
-		)
-		(instances
-			(project ""
-				(path "/5edcefbe-9766-42c8-9529-28d0ec865573"
-					(reference "TP16")
 					(unit 1)
 				)
 			)
