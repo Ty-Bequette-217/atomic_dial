@@ -1,0 +1,571 @@
+﻿Processing view_rp2350b (platform: raspberrypi; board: pico; framework: arduino)
+--------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/raspberrypi/pico.html
+PLATFORM: Raspberry Pi RP2040 (1.19.0) > Raspberry Pi Pico
+HARDWARE: RP2040 133MHz, 264KB RAM, 2MB Flash
+DEBUG: Current (cmsis-dap) External (cmsis-dap, jlink, raspberrypi-swd)
+PACKAGES: 
+ - framework-arduino-mbed @ 4.5.0 
+ - tool-rp2040tools @ 1.0.2 
+ - toolchain-gccarmnoneeabi @ 1.90201.191206 (9.2.1)
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+[nanopb] Installing Protocol Buffers dependencies
+Requirement already satisfied: protobuf>=3.19.1 in C:\Users\cocou\.platformio\penv\Lib\site-packages (6.33.6)
+[nanopb] No generation needed.
+Found 51 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- AceButton @ 1.9.1
+|-- PacketSerial @ 1.4.0
+|-- Nanopb @ 0.4.7
+|-- Simple FOC @ 2.2.0
+|-- TFT_eSPI @ 2.4.25
+|-- HX711 @ 0.7.5
+|-- Adafruit VEML7700 Library @ 1.1.1
+|-- LittleFS_Mbed_RP2040 @ 1.1.0
+Building in release mode
+Compiling .pio\build\view_rp2350b\src\configuration.cpp.o
+Compiling .pio\build\view_rp2350b\src\proto_gen\smartknob.pb.c.o
+C:\Users\cocou\.platformio
+\penv\Scripts\pio.exe : fi
+rmware_rp2350b\src\configu
+ration.cpp:1:10: fatal 
+error: LittleFS.h: No 
+such file or directory
+At line:1 char:1
++ C:\Users\cocou\.platform
+io\penv\Scripts\pio.exe 
+run -c platformio_rp2 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (f  
+  irmware_rp2350...le o   
+ r directory:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+
+**************************
+**************************
+**************
+* Looking for LittleFS.h 
+dependency? Check our 
+library registry!
+*
+* CLI  > platformio lib 
+search "header:LittleFS.h"
+* Web  > https://registry.
+platformio.org/search?q=he
+ader:LittleFS.h
+*
+**************************
+**************************
+**************
+
+    1 | #include 
+<LittleFS.h>
+      |          
+^~~~~~~~~~~~
+compilation terminated.
+Archiving .pio\build\view_rp2350b\lib22f\libNanopb.a
+Compiling .pio\build\view_rp2350b\lib90b\Wire\Wire.cpp.o
+*** [.pio\build\view_rp235
+0b\src\configuration.cpp.o
+] Error 1
+Indexing .pio\build\view_rp2350b\lib22f\libNanopb.a
+In file included from firm
+ware_rp2350b\src\proto_gen
+\smartknob.pb.h:6,
+                 from firm
+ware_rp2350b\src\proto_gen
+\smartknob.pb.c:4:
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+warning: implicit 
+declaration of function 'P
+B_FromSmartKnob_FIELDLIST'
+; did you mean 
+'PB_FromSmartKnob_size'? [
+-Wimplicit-function-declar
+ation]
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:500:9: note: 
+in definition of macro 
+'PB_BIND'
+  500 |         msgname 
+## _FIELDLIST(PB_GEN_FIELD
+_INFO_ ## width, 
+structname) \
+      |         ^~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:500:31: 
+error: 
+'PB_GEN_FIELD_INFO_2' 
+undeclared here (not in a 
+function)
+  500 |         msgname 
+## _FIELDLIST(PB_GEN_FIELD
+_INFO_ ## width, 
+structname) \
+      |                   
+            
+^~~~~~~~~~~~~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:1: 
+note: in expansion of 
+macro 'PB_BIND'
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      | ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:27: 
+error: expected 
+expression before 
+'PB_FromSmartKnob'
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |                   
+        ^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:500:60: note: 
+in definition of macro 
+'PB_BIND'
+  500 |         msgname 
+## _FIELDLIST(PB_GEN_FIELD
+_INFO_ ## width, 
+structname) \
+      |                   
+                          
+               ^~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:501:9: error: 
+expected '}' before 
+numeric constant
+  501 |         0 \
+      |         ^
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:1: 
+note: in expansion of 
+macro 'PB_BIND'
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      | ^~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:499:5: note: 
+to match this '{'
+  499 |     { \
+      |     ^
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:1: 
+note: in expansion of 
+macro 'PB_BIND'
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      | ^~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:505:31: 
+error: 
+'PB_GEN_SUBMSG_INFO' 
+undeclared here (not in a 
+function)
+  505 |         msgname 
+## _FIELDLIST(PB_GEN_SUBMS
+G_INFO, structname) \
+      |                   
+            
+^~~~~~~~~~~~~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:1: 
+note: in expansion of 
+macro 'PB_BIND'
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      | ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:27: 
+error: expected 
+expression before 
+'PB_FromSmartKnob'
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |                   
+        ^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:505:51: note: 
+in definition of macro 
+'PB_BIND'
+  505 |         msgname 
+## _FIELDLIST(PB_GEN_SUBMS
+G_INFO, structname) \
+      |                   
+                          
+      ^~~~~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+error: called object is 
+not a function or 
+function pointer
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:505:9: note: 
+in definition of macro 
+'PB_BIND'
+  505 |         msgname 
+## _FIELDLIST(PB_GEN_SUBMS
+G_INFO, structname) \
+      |         ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+warning: initialization 
+of 'const pb_msgdesc_t *' 
+{aka 'const struct 
+pb_msgdesc_s *'} from 
+incompatible pointer type 
+'const uint32_t *' {aka 
+'const long unsigned int 
+*'} [-Wincompatible-pointe
+r-types]
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:505:9: note: 
+in definition of macro 
+'PB_BIND'
+  505 |         msgname 
+## _FIELDLIST(PB_GEN_SUBMS
+G_INFO, structname) \
+      |         ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+note: (near 
+initialization for 'PB_Fro
+mSmartKnob_submsg_info[0]'
+)
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:505:9: note: 
+in definition of macro 
+'PB_BIND'
+  505 |         msgname 
+## _FIELDLIST(PB_GEN_SUBMS
+G_INFO, structname) \
+      |         ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+error: initializer 
+element is not constant
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:505:9: note: 
+in definition of macro 
+'PB_BIND'
+  505 |         msgname 
+## _FIELDLIST(PB_GEN_SUBMS
+G_INFO, structname) \
+      |         ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+note: (near 
+initialization for 'PB_Fro
+mSmartKnob_submsg_info[0]'
+)
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:505:9: note: 
+in definition of macro 
+'PB_BIND'
+  505 |         msgname 
+## _FIELDLIST(PB_GEN_SUBMS
+G_INFO, structname) \
+      |         ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+error: 'PB_FromSmartKnob_D
+EFAULT' undeclared here 
+(not in a function); did 
+you mean 
+'PB_FromSmartKnob_msg'?
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:512:8: note: 
+in definition of macro 
+'PB_BIND'
+  512 |        msgname ## 
+_DEFAULT, \
+      |        ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+warning: initialization 
+of 'const pb_byte_t *' 
+{aka 'const unsigned char 
+*'} from incompatible 
+pointer type 'const 
+pb_msgdesc_t * const*' 
+{aka 'const struct 
+pb_msgdesc_s * const*'} [-
+Wincompatible-pointer-type
+s]
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:512:8: note: 
+in definition of macro 
+'PB_BIND'
+  512 |        msgname ## 
+_DEFAULT, \
+      |        ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+note: (near 
+initialization for 'PB_Fro
+mSmartKnob_msg.default_val
+ue')
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:512:8: note: 
+in definition of macro 
+'PB_BIND'
+  512 |        msgname ## 
+_DEFAULT, \
+      |        ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+error: initializer 
+element is not constant
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:512:8: note: 
+in definition of macro 
+'PB_BIND'
+  512 |        msgname ## 
+_DEFAULT, \
+      |        ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+note: (near 
+initialization for 'PB_Fro
+mSmartKnob_msg.default_val
+ue')
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:512:8: note: 
+in definition of macro 
+'PB_BIND'
+  512 |        msgname ## 
+_DEFAULT, \
+      |        ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+error: 'PB_FromSmartKnob_C
+ALLBACK' undeclared here 
+(not in a function); did 
+you mean 
+'PB_FromSmartKnob_msg'?
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:513:8: note: 
+in definition of macro 
+'PB_BIND'
+  513 |        msgname ## 
+_CALLBACK, \
+      |        ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+warning: initialization 
+of '_Bool 
+(*)(pb_istream_t *, 
+pb_ostream_t *, const 
+pb_field_iter_t *)' {aka 
+'_Bool (*)(struct 
+pb_istream_s *, struct 
+pb_ostream_s *, const 
+struct pb_field_iter_s 
+*)'} from incompatible 
+pointer type 'const 
+pb_msgdesc_t * const*' 
+{aka 'const struct 
+pb_msgdesc_s * const*'} [-
+Wincompatible-pointer-type
+s]
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:513:8: note: 
+in definition of macro 
+'PB_BIND'
+  513 |        msgname ## 
+_CALLBACK, \
+      |        ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+note: (near 
+initialization for 'PB_Fro
+mSmartKnob_msg.field_callb
+ack')
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:513:8: note: 
+in definition of macro 
+'PB_BIND'
+  513 |        msgname ## 
+_CALLBACK, \
+      |        ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+error: initializer 
+element is not constant
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:513:8: note: 
+in definition of macro 
+'PB_BIND'
+  513 |        msgname ## 
+_CALLBACK, \
+      |        ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+note: (near 
+initialization for 'PB_Fro
+mSmartKnob_msg.field_callb
+ack')
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:513:8: note: 
+in definition of macro 
+'PB_BIND'
+  513 |        msgname ## 
+_CALLBACK, \
+      |        ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:9: 
+error: expected '}' 
+before 'PB_FromSmartKnob_F
+IELDLIST'
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |         
+^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:514:10: note: 
+in definition of macro 
+'PB_BIND'
+  514 |        0 msgname 
+## _FIELDLIST(PB_GEN_FIELD
+_COUNT, structname), \
+      |          ^~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:509:5: note: 
+to match this '{'
+  509 |     { \
+      |     ^
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:1: 
+note: in expansion of 
+macro 'PB_BIND'
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      | ^~~~~~~
+firmware_rp2350b\src\proto
+_gen\smartknob.pb.c:9:27: 
+error: expected ')' 
+before 'PB_FromSmartKnob'
+    9 | 
+PB_BIND(PB_FromSmartKnob, 
+PB_FromSmartKnob, 2)
+      |                   
+        ^~~~~~~~~~~~~~~~
+.pio\libdeps\view_rp2350b\
+Nanopb/pb.h:518:63: note: 
+in definition of macro 
+'PB_BIND'
+  518 |     msgname ## _FI
+ELDLIST(PB_GEN_FIELD_INFO_
+ASSERT_ ## width, 
+structname)
+      |                   
+                          
+                  
+^~~~~~~~~~
+*** [.pio\build\view_rp235
+0b\src\proto_gen\smartknob
+.pb.c.o] Error 1
+==========================
+ [FAILED] Took 4.99 
+seconds 
+==========================

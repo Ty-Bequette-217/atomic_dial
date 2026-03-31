@@ -1,0 +1,123 @@
+﻿Processing view_rp2350b (platform: https://github.com/maxgerhardt/platform-raspberrypi.git; board: rpipico2; framework: arduino)
+--------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/raspberrypi/rpipico2.html
+PLATFORM: Raspberry Pi RP2040 (1.19.0+sha.79ce473) > Pico 2
+HARDWARE: RP2350 150MHz, 512KB RAM, 4MB Flash
+DEBUG: Current (blackmagic) External (blackmagic, cmsis-dap, jlink, picoprobe, raspberrypi-swd)
+PACKAGES: 
+ - framework-arduinopico @ 1.50501.0+sha.275e73d 
+ - tool-picotool-rp2040-earlephilhower @ 5.140200.250530 (14.2.0) 
+ - tool-pioasm-rp2040-earlephilhower @ 5.140200.250530 (14.2.0) 
+ - toolchain-rp2040-earlephilhower @ 5.140200.250530 (14.2.0)
+Flash size: 4.00MB
+Sketch size: 4.00MB
+Filesystem size: 0.00MB
+PSRAM size: 0.00MB
+Maximium Sketch size: 4190208 EEPROM start: 0x103ff000 Filesystem start: 0x103ff000 Filesystem end: 0x103ff000
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+[nanopb] Installing Protocol Buffers dependencies
+Requirement already satisfied: protobuf>=3.19.1 in C:\Users\cocou\.platformio\penv\Lib\site-packages (6.33.6)
+[nanopb] No generation needed.
+Found 83 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- AceButton @ 1.9.1
+|-- PacketSerial @ 1.4.0
+|-- Nanopb @ 0.4.7
+|-- Simple FOC @ 2.2.0
+|-- TFT_eSPI @ 2.4.25
+|-- HX711 @ 0.7.5
+|-- Adafruit VEML7700 Library @ 1.1.1
+|-- LittleFS @ 0.1.0
+Building in release mode
+Compiling .pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\arduino\Adafruit_TinyUSB_API.cpp.o
+Compiling .pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\arduino\Adafruit_USBD_CDC.cpp.o
+Compiling .pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\arduino\Adafruit_USBD_Device.cpp.o
+Compiling .pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\arduino\Adafruit_USBH_Host.cpp.o
+C:\Users\cocou\.platformio\penv\Scripts\pio.exe : In file 
+included from C:\Users\cocou\.platformio\packages\framework-ardui
+nopico\libraries\Adafruit_TinyUSB_Arduino\src\arduino\Adafruit_US
+BD_Device.cpp:29:
+At line:1 char:1
++ C:\Users\cocou\.platformio\penv\Scripts\pio.exe run -c 
+platformio_rp2 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~
+    + CategoryInfo          : NotSpecified: (In file include..._ 
+   Device.cpp:29::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\cocou\.platformio\packages\framework-arduinopico\librari
+es\Adafruit_TinyUSB_Arduino\src\arduino\Adafruit_TinyUSB_API.h:50
+:2: error: #error TinyUSB is not selected, please select it in 
+"Tools->Menu->USB Stack"
+   50 | #error TinyUSB is not selected, please select it in 
+"Tools->Menu->USB Stack"
+      |  ^~~~~
+Compiling .pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\arduino\ports\nrf\Adafruit_TinyUSB_nrf.cpp.o
+Compiling .pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\arduino\ports\rp2040\Adafruit_TinyUSB_rp2040.cpp.o
+In file included from C:\Users\cocou\.platformio\packages\framewo
+rk-arduinopico\libraries\Adafruit_TinyUSB_Arduino\src\arduino\Ada
+fruit_USBH_Host.cpp:35:
+C:\Users\cocou\.platformio\packages\framework-arduinopico\librari
+es\Adafruit_TinyUSB_Arduino\src\arduino\Adafruit_TinyUSB_API.h:50
+:2: error: #error TinyUSB is not selected, please select it in 
+"Tools->Menu->USB Stack"
+   50 | #error TinyUSB is not selected, please select it in 
+"Tools->Menu->USB Stack"
+      |  ^~~~~
+Compiling .pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\arduino\ports\samd\Adafruit_TinyUSB_samd.cpp.o
+Compiling .pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\arduino\video\Adafruit_USBD_Video.cpp.o
+In file included from C:\Users\cocou\.platformio\packages\framewo
+rk-arduinopico\libraries\Adafruit_TinyUSB_Arduino\src/arduino/Ada
+fruit_USBD_CDC.h:28,
+                 from C:\Users\cocou\.platformio\packages\framewo
+rk-arduinopico\libraries\Adafruit_TinyUSB_Arduino\src/Adafruit_Ti
+nyUSB.h:36,
+                 from C:\Users\cocou\.platformio\packages\framewo
+rk-arduinopico\libraries\Adafruit_TinyUSB_Arduino\src\arduino\Ada
+fruit_TinyUSB_API.cpp:29:
+C:\Users\cocou\.platformio\packages\framework-arduinopico\librari
+es\Adafruit_TinyUSB_Arduino\src/arduino/Adafruit_TinyUSB_API.h:50
+:2: error: #error TinyUSB is not selected, please select it in 
+"Tools->Menu->USB Stack"
+   50 | #error TinyUSB is not selected, please select it in 
+"Tools->Menu->USB Stack"
+      |  ^~~~~
+In file included from C:\Users\cocou\.platformio\packages\framewo
+rk-arduinopico\libraries\Adafruit_TinyUSB_Arduino\src\arduino\Ada
+fruit_USBD_CDC.cpp:32:
+C:\Users\cocou\.platformio\packages\framework-arduinopico\librari
+es\Adafruit_TinyUSB_Arduino\src\arduino\Adafruit_TinyUSB_API.h:50
+:2: error: #error TinyUSB is not selected, please select it in 
+"Tools->Menu->USB Stack"
+   50 | #error TinyUSB is not selected, please select it in 
+"Tools->Menu->USB Stack"
+      |  ^~~~~
+Compiling .pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\arduino\webusb\Adafruit_USBD_WebUSB.cpp.o
+Compiling .pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\class\audio\audio_device.c.o
+In file included from C:\Users\cocou\.platformio\packages\framewo
+rk-arduinopico\libraries\Adafruit_TinyUSB_Arduino\src\arduino\por
+ts\rp2040\Adafruit_TinyUSB_rp2040.cpp:40:
+C:\Users\cocou\.platformio\packages\framework-arduinopico\librari
+es\Adafruit_TinyUSB_Arduino\src/arduino/Adafruit_TinyUSB_API.h:50
+:2: error: #error TinyUSB is not selected, please select it in 
+"Tools->Menu->USB Stack"
+   50 | #error TinyUSB is not selected, please select it in 
+"Tools->Menu->USB Stack"
+      |  ^~~~~
+Compiling .pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\class\bth\bth_device.c.o
+*** [.pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\ardu
+ino\Adafruit_USBD_CDC.cpp.o] Error 1
+*** [.pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\ardu
+ino\Adafruit_USBD_Device.cpp.o] Error 1
+*** [.pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\ardu
+ino\Adafruit_TinyUSB_API.cpp.o] Error 1
+*** [.pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\ardu
+ino\ports\rp2040\Adafruit_TinyUSB_rp2040.cpp.o] Error 1
+*** [.pio\build\view_rp2350b\libb23\Adafruit_TinyUSB_Arduino\ardu
+ino\Adafruit_USBH_Host.cpp.o] Error 1
+========================== [FAILED] Took 5.32 seconds 
+==========================
