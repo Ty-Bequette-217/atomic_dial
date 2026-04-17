@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "lvgl.h"
 
+#define MY_DISP_HOR_RES 240
+#define MY_DISP_VER_RES 240
+
 // Initializes the screen background, arc, and styles
 void ui_init(void);
 

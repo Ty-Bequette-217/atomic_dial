@@ -1,23 +1,30 @@
-#include "ui.h"
 #include "display.h"
 #include "board_config.h"
+#include "lvgl.h"             // Needed for the lv_disp_drv_t types
+
+// Pico SDK Hardware Libraries
+#include "pico/stdlib.h"
+#include "hardware/spi.h"
+#include "hardware/gpio.h"
+
+
 
 void lcd_write_cmd(uint8_t cmd) {
     gpio_put(LCD_CMD_PIN, 0); 
     gpio_put(LCD_CS_PIN, 0); 
-    spi_write_blocking(SPI_PORT, &cmd, 1);
+    spi_write_blocking(LCD_SPI, &cmd, 1);
     gpio_put(LCD_CS_PIN, 1); 
 }
 
 void lcd_write_data(uint8_t data) {
     gpio_put(LCD_CMD_PIN, 1); 
     gpio_put(LCD_CS_PIN, 0); 
-    spi_write_blocking(SPI_PORT, &data, 1);
+    spi_write_blocking(LCD_SPI, &data, 1);
     gpio_put(LCD_CS_PIN, 1); 
 }
 
 void lcd_init() {
-    spi_init(SPI_PORT, 20000000);
+    spi_init(LCD_SPI, 20000000);
     
     gpio_set_function(LCD_SCK_PIN, GPIO_FUNC_SPI);
     gpio_set_function(LCD_DATA_PIN, GPIO_FUNC_SPI);
@@ -115,54 +122,11 @@ void my_disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_t *c
         uint8_t color_high = color >> 8;
         uint8_t color_low = color & 0xFF;
         
-        spi_write_blocking(SPI_PORT, &color_high, 1);
-        spi_write_blocking(SPI_PORT, &color_low, 1);
+        spi_write_blocking(LCD_SPI, &color_high, 1);
+        spi_write_blocking(LCD_SPI, &color_low, 1);
         color_p++; 
     }
     
     gpio_put(LCD_CS_PIN, 1); 
     lv_disp_flush_ready(disp_drv);
 }
-
-// int main() {
-//     stdio_init_all();
-//     lcd_init();
-
-//     // LDR controlling LCD backlight
-//     init_adc_dma();
-//     init_pwm_static(10000, 5000); 
-//     init_pwm_irq(); 
-
-//     // LVGL Setup
-//     lv_init();
-//     static lv_color_t buf_1[MY_DISP_HOR_RES * 24];
-//     static lv_disp_draw_buf_t draw_buf;
-//     lv_disp_draw_buf_init(&draw_buf, buf_1, NULL, MY_DISP_HOR_RES * 24);
-
-//     static lv_disp_drv_t disp_drv;
-//     lv_disp_drv_init(&disp_drv);
-//     disp_drv.hor_res = MY_DISP_HOR_RES;
-//     disp_drv.ver_res = MY_DISP_VER_RES;
-//     disp_drv.flush_cb = my_disp_flush; 
-//     disp_drv.draw_buf = &draw_buf;
-//     lv_disp_drv_register(&disp_drv);
-
-//     // Call the external UI function!
-//     ui_init();
-
-//     while (1) {
-//         lv_timer_handler(); 
-
-//         // Fixed the math here: (Result * 360) / Max_ADC_Value
-//         uint16_t mapped_val = (adc_hw->result * 360) / 4095;
-        
-//         // Push the new value to the UI
-//         ui_update_arc(mapped_val);
-
-//         printf("ADC Result: %d \r", adc_hw->result);
-//         fflush(stdout);
-//         sleep_ms(5);
-//     }
-
-//     return 0;
-// }

@@ -1,5 +1,6 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
+#include "lvgl.h"
 #include <stdio.h>
 #include <stdint.h>
 

@@ -14,20 +14,43 @@
 #include <stdint.h>
 #include "lvgl.h"
 #include "ui.h"
+#include "display.h"
 
 int main(void) {
     stdio_init_all();
+
+    // LVGL Setup
+    lcd_init();
+    lv_init();
+    static lv_color_t buf_1[MY_DISP_HOR_RES * 24];
+    static lv_disp_draw_buf_t draw_buf;
+    lv_disp_draw_buf_init(&draw_buf, buf_1, NULL, MY_DISP_HOR_RES * 24);
+
+    static lv_disp_drv_t disp_drv;
+    lv_disp_drv_init(&disp_drv);
+    disp_drv.hor_res = MY_DISP_HOR_RES;
+    disp_drv.ver_res = MY_DISP_VER_RES;
+    disp_drv.flush_cb = my_disp_flush; 
+    disp_drv.draw_buf = &draw_buf;
+    lv_disp_drv_register(&disp_drv);
+
+    // Call the external UI function!
+    ui_init();
+
 
     // LDR controlling LCD backlight
     init_adc_dma();
     init_pwm_static(10000, 5000); // Start out with 500/1000, 50% brightness
     init_pwm_irq(); // Initialize PWM IRQ for variable duty cycle
-
-    for(;;){
-
+    
+    while(1){
+        lv_timer_handler();
+        // Map the 12-bit ADC (0-4095) to the 360-degree Arc
+        uint16_t mapped_val = (adc_hw->result * 360) / 4095;
+        ui_update_arc(mapped_val);
         // LDR Display Brightness Readout
         printf("ADC Result: %d     \r", adc_hw->result);
         fflush(stdout);
-        sleep_ms(250);
+        sleep_ms(5);
     }
 }
