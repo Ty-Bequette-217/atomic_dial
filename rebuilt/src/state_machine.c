@@ -1,6 +1,7 @@
 #include "state_machine.h"
 #include <string.h>
 #include "board_config.h"
+#include "ui.h"
 
 #define DEBOUNCE_MS         200
 
@@ -200,6 +201,7 @@ static void smartknob_apply_config(SmartKnobStateMachine *sm, knob_state_t new_s
     sm->current_state = new_state;
     sm->active_config = &configs[new_state];
     sm->config_dirty = true;
+    ui_set_state_visual(new_state);
 
     // Put hardware update hooks here:
     // - send config to motor control loop
