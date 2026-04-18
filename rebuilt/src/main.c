@@ -37,7 +37,6 @@ int main(void) {
     // Call the external UI function!
     ui_init();
 
-
     // LDR controlling LCD backlight
     init_adc_dma();
     init_pwm_static(10000, 5000); // Start out with 500/1000, 50% brightness

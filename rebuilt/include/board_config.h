@@ -4,6 +4,7 @@
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "hardware/uart.h"
+#include "hardware/i2c.h"
 
 // MOTOR DRIVER (all are pulled down)
 #define MOTOR_PHASE_V_LOW_PIN       2
@@ -32,11 +33,11 @@
 // #define I2C_SDA_PIN 12
 // #define I2C_SCL_PIN 13
 
-// LDR PINS
+// LDR PINS (ADC)
 #define LDR_V_IN 45
 #define LDR_ADC_CHAN 5
 
-// LCD
+// LCD (SPI)
 #define LCD_SPI           spi0
 #define LCD_HOR_RES 240
 #define LCD_DISP_VER_RES 240
@@ -48,17 +49,17 @@
 #define LCD_DATA_PIN      19
 #define LCD_RST_PIN       20
 
-// MODE CHANGE BUTTON
+// MODE CHANGE BUTTON (GPIO)
 #define MODE_BUTTON_PIN 21
 
 // LED_DATA
 #define LED_DATA_3V3_PIN  27;
 
-// MAGNETIC ENCODER
-#define MAG_SPI      spi0
-#define MAG_DO_PIN   28 // already pulled up
-#define MAG_CSN_PIN  29 
-#define MAG_CLK_PIN  30 // already pulled up
+// AS5600 MAGNETIC ENCODER (I2C)
+#define MAG_ENC_I2C_PORT  i2c0
+#define MAG_ENC_I2C_SDA   28 
+#define MAG_ENC_I2C_SCL   29 
+// #define MAG_CLK_PIN  30 // already pulled up
 
 // CONTROL SETTINGS
 #define MOTOR_CONTROL_HZ    4000.0f
