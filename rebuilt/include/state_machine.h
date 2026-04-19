@@ -68,6 +68,7 @@ typedef struct {
 // Public API
 void smartknob_sm_init(SmartKnobStateMachine *sm);
 void smartknob_sm_handle_event(SmartKnobStateMachine *sm, knob_event_t event);
+SmartKnobStateMachine *smartknob_sm_get_instance(void);
 const SmartKnobConfig *smartknob_sm_get_config(const SmartKnobStateMachine *sm);
 knob_state_t smartknob_sm_get_state(const SmartKnobStateMachine *sm);
 

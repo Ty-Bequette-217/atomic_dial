@@ -211,10 +211,14 @@ static void smartknob_apply_config(SmartKnobStateMachine *sm, knob_state_t new_s
 }
 
 void smartknob_sm_init(SmartKnobStateMachine *sm) {
-    if (!sm) return;
-    sm->current_state = KNOB_STATE_UNBOUNDED_NO_DETENTS;
-    sm->active_config = &configs[KNOB_STATE_UNBOUNDED_NO_DETENTS];
-    sm->config_dirty = true;
+    (void)sm;
+
+    memset(&knob_sm, 0, sizeof(knob_sm));
+    knob_sm.current_state = KNOB_STATE_UNBOUNDED_NO_DETENTS;
+    knob_sm.active_config = &configs[knob_sm.current_state];
+    knob_sm.config_dirty = true;
+
+    button_init();
 }
 
 static knob_state_t next_state(knob_state_t s) {
@@ -229,6 +233,8 @@ void smartknob_sm_handle_event(SmartKnobStateMachine *sm, knob_event_t event) {
     if (!sm) return;
 
     knob_state_t new_state = sm->current_state;
+    sm->active_config = &configs[sm->current_state];
+    sm->config_dirty = true;
 
     switch (event) {
         case KNOB_EVENT_NEXT_MODE:
@@ -331,4 +337,8 @@ static void button_init(void) {
         true,
         &button_irq_handler
     );
+}
+
+SmartKnobStateMachine *smartknob_sm_get_instance(void) {
+    return &knob_sm;
 }

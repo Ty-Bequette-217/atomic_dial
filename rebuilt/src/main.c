@@ -11,6 +11,7 @@
 #include "hardware/dma.h"
 #include "ldr_monitoring.h"
 #include "state_machine.h"
+#include "motor_task.h"
 #include <stdint.h>
 #include "lvgl.h"
 #include "ui.h"
@@ -18,6 +19,18 @@
 
 int main(void) {
     stdio_init_all();
+
+    // Motor global vars
+    SmartKnobStateMachine *sm;
+    motor_task_t motor;
+    
+    // init motor
+    smartknob_sm_init(NULL);
+    sm = smartknob_sm_get_instance();
+
+    motor_task_init(&motor);
+    motor_task_set_config(&motor, smartknob_sm_get_config(sm));
+
 
     // LVGL Setup
     lcd_init();
@@ -47,9 +60,18 @@ int main(void) {
         // Map the 12-bit ADC (0-4095) to the 360-degree Arc
         uint16_t mapped_val = (adc_hw->result * 360) / 4095;
         ui_update_arc(mapped_val);
-        // LDR Display Brightness Readout
-        printf("ADC Result: %d     \r", adc_hw->result);
-        fflush(stdout);
+
+        // // LDR Display Brightness Readout
+        // printf("ADC Result: %d     \r", adc_hw->result);
+        // fflush(stdout);
+
+        // MOTOR CONFIG CHECK
+        if (sm->config_dirty) {
+            motor_task_set_config(&motor, smartknob_sm_get_config(sm));
+            sm->config_dirty = false;
+        }
+        motor_task_update(&motor);
+
         sleep_ms(5);
     }
 }
