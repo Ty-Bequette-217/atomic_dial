@@ -173,6 +173,7 @@ void read_bridge_debug(float *v_aplus, float *v_aminus, float *v_diff) {
     *v_diff   = *v_aplus - *v_aminus;
 }
 
+#ifdef HX711_STANDALONE_TEST
 int main(void) {
     stdio_init_all();
     sleep_ms(2000);
@@ -213,3 +214,4 @@ int main(void) {
 
     return 0;
 }
+#endif

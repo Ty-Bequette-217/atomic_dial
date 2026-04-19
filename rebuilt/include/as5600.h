@@ -49,4 +49,7 @@ bool as5600_get_z_position(as5600_t *dev, uint16_t *pos);
 bool as5600_set_power_mode(as5600_t *dev, as5600_power_mode_t mode);
 bool as5600_get_power_mode(as5600_t *dev, as5600_power_mode_t *mode);
 
+bool as5600_init_default(void);
+float as5600_get_angle_radians(void);
+
 #endif

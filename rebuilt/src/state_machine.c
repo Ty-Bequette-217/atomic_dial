@@ -6,7 +6,11 @@
 #define DEBOUNCE_MS         200
 
 static SmartKnobStateMachine knob_sm;
-static volatile uint32_t last_button_time_ms = 0;
+static uint32_t last_button_time_ms;
+
+static void button_init(void);
+static void apply_current_config(SmartKnobStateMachine *sm);
+static void button_irq_handler(uint gpio, uint32_t events);
 
 static const SmartKnobConfig configs[KNOB_STATE_COUNT] = {
     [KNOB_STATE_UNBOUNDED_NO_DETENTS] = {
@@ -201,7 +205,7 @@ static void smartknob_apply_config(SmartKnobStateMachine *sm, knob_state_t new_s
     sm->current_state = new_state;
     sm->active_config = &configs[new_state];
     sm->config_dirty = true;
-    ui_set_state_visual(new_state);
+    apply_current_config(sm);
 
     // Put hardware update hooks here:
     // - send config to motor control loop
@@ -217,6 +221,9 @@ void smartknob_sm_init(SmartKnobStateMachine *sm) {
     knob_sm.current_state = KNOB_STATE_UNBOUNDED_NO_DETENTS;
     knob_sm.active_config = &configs[knob_sm.current_state];
     knob_sm.config_dirty = true;
+    last_button_time_ms = 0;
+
+    apply_current_config(&knob_sm);
 
     button_init();
 }
@@ -230,11 +237,9 @@ static knob_state_t prev_state(knob_state_t s) {
 }
 
 void smartknob_sm_handle_event(SmartKnobStateMachine *sm, knob_event_t event) {
-    if (!sm) return;
+    if (!sm || event == KNOB_EVENT_NONE) return;
 
     knob_state_t new_state = sm->current_state;
-    sm->active_config = &configs[sm->current_state];
-    sm->config_dirty = true;
 
     switch (event) {
         case KNOB_EVENT_NEXT_MODE:
@@ -303,12 +308,11 @@ static void apply_current_config(SmartKnobStateMachine *sm) {
     // - LED driver
     // - display task
     // - core1 mailbox/FIFO if needed
-
-    sm->config_dirty = false;
+    ui_set_state_visual(sm->current_state);
 }
 
 static void button_irq_handler(uint gpio, uint32_t events) {
-    if (gpio != MODE_BUTTON_PIN) return;
+    if (gpio != MODE_BUTTON_PIN || !(events & GPIO_IRQ_EDGE_FALL)) return;
 
     uint32_t now = to_ms_since_boot(get_absolute_time());
 

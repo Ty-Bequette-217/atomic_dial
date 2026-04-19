@@ -49,6 +49,7 @@ int main(void) {
 
     // Call the external UI function!
     ui_init();
+    ui_set_state_visual(smartknob_sm_get_state(sm));
 
     // LDR controlling LCD backlight
     init_adc_dma();

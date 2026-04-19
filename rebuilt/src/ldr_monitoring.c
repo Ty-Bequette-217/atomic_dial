@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <math.h>
 #include <stdlib.h>
 #include "pico/stdlib.h"
@@ -34,8 +35,8 @@ void init_adc_freerun() {
 
 void init_dma() {
     // config DMA Ch 0 to read from ADC FIFO and write to variable ldr_adc_fifo_out
-    dma_hw->ch[0].read_addr = &adc_hw->fifo;
-    dma_hw->ch[0].write_addr = &ldr_adc_fifo_out;
+    dma_hw->ch[0].read_addr = (uintptr_t)&adc_hw->fifo;
+    dma_hw->ch[0].write_addr = (uintptr_t)&ldr_adc_fifo_out;
     dma_hw->ch[0].transfer_count = (1 << 28) | (1 << 0);
     dma_hw->ch[0].ctrl_trig = 0;
     uint32_t temp = 0;

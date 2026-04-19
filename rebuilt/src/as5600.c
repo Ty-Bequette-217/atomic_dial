@@ -1,5 +1,13 @@
 #include "as5600.h"
 
+#include <math.h>
+
+#include "board_config.h"
+#include "hardware/gpio.h"
+
+static as5600_t default_as5600;
+static bool default_as5600_ready;
+
 static bool as5600_read_u8(as5600_t *dev, uint8_t reg, uint8_t *value) {
     if (i2c_write_blocking(dev->i2c, dev->addr, &reg, 1, true) != 1) {
         return false;
@@ -110,4 +118,33 @@ bool as5600_get_power_mode(as5600_t *dev, as5600_power_mode_t *mode) {
     if (!as5600_read_u16_be(dev, AS5600_REG_CONF_H, &conf)) return false;
     *mode = (as5600_power_mode_t)(conf & 0x3u);
     return true;
+}
+
+bool as5600_init_default(void) {
+    if (default_as5600_ready) {
+        return true;
+    }
+
+    i2c_init(MAG_ENC_I2C_PORT, 400000);
+    gpio_set_function(MAG_ENC_I2C_SDA, GPIO_FUNC_I2C);
+    gpio_set_function(MAG_ENC_I2C_SCL, GPIO_FUNC_I2C);
+    gpio_pull_up(MAG_ENC_I2C_SDA);
+    gpio_pull_up(MAG_ENC_I2C_SCL);
+
+    default_as5600_ready = as5600_init(&default_as5600, MAG_ENC_I2C_PORT, AS5600_DEFAULT_ADDR);
+    return default_as5600_ready;
+}
+
+float as5600_get_angle_radians(void) {
+    const float two_pi = 6.28318530718f;
+    uint16_t angle_counts = 0;
+
+    if (!as5600_init_default()) {
+        return 0.0f;
+    }
+    if (!as5600_get_angle(&default_as5600, &angle_counts)) {
+        return 0.0f;
+    }
+
+    return ((float)angle_counts * two_pi) / 4096.0f;
 }
