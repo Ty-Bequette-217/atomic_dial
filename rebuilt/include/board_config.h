@@ -14,6 +14,7 @@
 #define MOTOR_PHASE_U_LOW_PIN       6
 #define MOTOR_PHASE_U_HIGH_PIN      7
 #define MOTOR_DIAG_PIN             14
+#define MOTOR_VIO_PIN              41
 
 // UART
 #define DEBUG_UART         uart0
