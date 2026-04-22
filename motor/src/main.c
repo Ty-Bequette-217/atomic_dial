@@ -11,6 +11,8 @@
 #include "hardware/gpio.h"
 #include "board_config.h"
 #include "lvgl.h"
+#include "hx711.h"
+
 
 // Pull in the UI functions we just created
 #include "ui/ui.h"
