@@ -16,10 +16,61 @@
 #include "lvgl.h"
 #include "ui.h"
 #include "display.h"
+#include "as5600.h"
+
+// Only uncomment ONE step at a time.
+// To test without the motor/driver connected or the strain gauge
+#define TEST_WO_MOTOR_OR_STRAIN
+// To test the final version with everything
+// #define FULL_THANG
 
 int main(void) {
+
     stdio_init_all();
 
+    #ifdef TEST_WO_MOTOR_OR_STRAIN
+        // Init Display
+        lcd_init();
+        ui_init();
+        
+        // Enable Encoder - i2c
+        i2c_init(MAG_ENC_I2C_PORT, 4e3);
+        gpio_set_function(MAG_ENC_I2C_SDA, GPIO_FUNC_I2C);
+        gpio_set_function(MAG_ENC_I2C_SCL, GPIO_FUNC_I2C);
+        gpio_pull_up(MAG_ENC_I2C_SDA);
+        gpio_pull_up(MAG_ENC_I2C_SCL);
+
+        as5600_t encoder;
+        as5600_init(&encoder, MAG_ENC_I2C_PORT, AS5600_DEFAULT_ADDR);
+
+        // Init LDR - adc
+        init_adc_dma();
+        init_pwm_static(10000, 5000); // Start out with 500/1000, 50% brightness
+        init_pwm_irq(); // Initialize PWM IRQ for variable duty cycle
+
+        uint16_t angle_raw = 0;
+        uint16_t last_arc_value = 0;
+
+        while(1){
+            // Read encoder angle
+            if (as5600_get_angle(&encoder, &angle_raw)) {
+
+                uint16_t arc_value = (angle_raw * 100) / 4095;
+                // printf("%d\n", arc_value);
+
+                if ((arc_value > last_arc_value ? (arc_value - last_arc_value) : (last_arc_value - arc_value)) >= 1) {
+                    ui_update_arc(arc_value);
+                    last_arc_value = arc_value;
+                }
+            }
+
+            lv_timer_handler();
+            sleep_ms(10);
+        }
+
+    #endif
+
+    #ifdef FULL_THANG
     // Motor global vars
     SmartKnobStateMachine *sm;
     motor_task_t motor;
@@ -75,4 +126,5 @@ int main(void) {
 
         sleep_ms(5);
     }
+    #endif
 }
