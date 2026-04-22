@@ -4,3 +4,6 @@
 [submodule "rebuilt/include/lvgl"]
 	path = rebuilt/include/lvgl
 	url = https://github.com/lvgl/lvgl.git
+[submodule "motor/lvgl"]
+	path = motor/lvgl
+	url = https://github.com/lvgl/lvgl.git
