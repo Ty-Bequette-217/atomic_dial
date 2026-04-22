@@ -29,7 +29,7 @@
 #define STRAIN_DO_PIN  10
 #define STRAIN_SCK_PIN 11
 
-// LDR PINS
+// LDR PINS 
 #define LDR_V_IN 45
 #define LDR_ADC_CHAN 5
 #define LDR_CLK_DIV 2.5e6

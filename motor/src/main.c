@@ -22,6 +22,11 @@
 #include "motor_feedback.h"
 
 static volatile bool mode_advance_requested = false;
+static bool strain_gauge_pressed = false;
+static uint32_t last_strain_gauge_trigger_ms = 0;
+
+static const int32_t STRAIN_GAUGE_PRESS_THRESHOLD = -300;
+static const uint32_t STRAIN_GAUGE_DEBOUNCE_MS = 250;
 
 static void button_gpio_isr(void) {
     if (gpio_get_irq_event_mask(BUTTON_PIN) & GPIO_IRQ_EDGE_RISE) {
@@ -37,6 +42,36 @@ static void button_init(void) {
     gpio_add_raw_irq_handler_masked(1u << BUTTON_PIN, button_gpio_isr);
     gpio_set_irq_enabled(BUTTON_PIN, GPIO_IRQ_EDGE_RISE, true);
     irq_set_enabled(IO_IRQ_BANK0, true);
+}
+
+static void strain_gauge_init(void) {
+    hx711_init();
+    hx711_set_gain(64);
+
+    printf("Keep hands off the strain gauge. Calibrating...\n");
+    hx711_tare(20);
+    printf("Strain gauge tare complete\n");
+}
+
+static void request_mode_advance_from_strain_gauge(void) {
+    if (!hx711_is_ready()) {
+        return;
+    }
+
+    int32_t strain_value = hx711_read_net();
+    bool crossed_threshold = strain_value < STRAIN_GAUGE_PRESS_THRESHOLD;
+    uint32_t now = to_ms_since_boot(get_absolute_time());
+
+    if (crossed_threshold && !strain_gauge_pressed &&
+        (now - last_strain_gauge_trigger_ms > STRAIN_GAUGE_DEBOUNCE_MS)) {
+        strain_gauge_pressed = true;
+        last_strain_gauge_trigger_ms = now;
+        mode_advance_requested = true;
+        printf("Strain gauge mode advance. Value: %ld\n", strain_value);
+    } else if (!crossed_threshold && strain_gauge_pressed &&
+               strain_value > (STRAIN_GAUGE_PRESS_THRESHOLD / 2)) {
+        strain_gauge_pressed = false;
+    }
 }
 
 // --- LOW LEVEL HARDWARE FUNCTIONS ---
@@ -179,6 +214,7 @@ int main() {
 
     lcd_init();
     button_init();
+    strain_gauge_init();
 
     // LDR controlling LCD backlight
     init_adc_dma();
@@ -216,6 +252,7 @@ int main() {
         if (time_reached(next_ui_update)) {
             next_ui_update = make_timeout_time_ms(10);
             lv_timer_handler();
+            request_mode_advance_from_strain_gauge();
 
             if (mode_advance_requested) {
                 mode_advance_requested = false;
