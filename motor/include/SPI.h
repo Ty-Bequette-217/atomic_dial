@@ -1,6 +1,9 @@
 #ifndef SPI_COMPAT_H
 #define SPI_COMPAT_H
 
+// Only let the C++ compiler read the classes!
+#ifdef __cplusplus
+
 #include "Arduino.h"
 
 class SPISettings {
@@ -24,5 +27,7 @@ public:
 };
 
 static SPIClass SPI;
+
+#endif // __cplusplus
 
 #endif // SPI_COMPAT_H
