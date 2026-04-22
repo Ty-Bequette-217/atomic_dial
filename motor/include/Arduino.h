@@ -8,9 +8,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "pico/stdlib.h"
 #include "hardware/adc.h"
 #include "hardware/gpio.h"
+
+// ==========================================
+// C-COMPATIBLE SECTION (Visible to C and C++)
+// ==========================================
 
 #define HIGH 1
 #define LOW 0
@@ -31,21 +36,6 @@
 typedef uint8_t byte;
 typedef uint16_t word;
 typedef bool boolean;
-
-class __FlashStringHelper;
-typedef const char *StringSumHelper;
-
-#define F(str) reinterpret_cast<const __FlashStringHelper *>(str)
-
-template <typename T>
-constexpr const T &min(const T &a, const T &b) {
-    return (b < a) ? b : a;
-}
-
-template <typename T>
-constexpr const T &max(const T &a, const T &b) {
-    return (a < b) ? b : a;
-}
 
 inline void pinMode(int pin, int mode) {
     gpio_init((uint)pin);
@@ -113,6 +103,17 @@ inline void noInterrupts(void) {
 inline void interrupts(void) {
 }
 
+inline bool isDigit(char c) {
+    return isdigit((unsigned char)c) != 0;
+}
+
+
+// ==========================================
+// C++ EXCLUSIVE SECTION (Hidden from C compiler)
+// ==========================================
+#ifdef __cplusplus
+
+// Moved down here to hide the default argument from the C compiler
 inline unsigned long pulseIn(int pin, int state, unsigned long timeout = 1000000UL) {
     (void)pin;
     (void)state;
@@ -120,8 +121,19 @@ inline unsigned long pulseIn(int pin, int state, unsigned long timeout = 1000000
     return 0;
 }
 
-inline bool isDigit(char c) {
-    return isdigit((unsigned char)c) != 0;
+class __FlashStringHelper;
+typedef const char *StringSumHelper;
+
+#define F(str) reinterpret_cast<const __FlashStringHelper *>(str)
+
+template <typename T>
+constexpr const T &min(const T &a, const T &b) {
+    return (b < a) ? b : a;
+}
+
+template <typename T>
+constexpr const T &max(const T &a, const T &b) {
+    return (a < b) ? b : a;
 }
 
 class Print {
@@ -213,5 +225,7 @@ public:
 };
 
 static HardwareSerial Serial;
+
+#endif // __cplusplus
 
 #endif // ARDUINO_COMPAT_H
