@@ -24,6 +24,8 @@ static lv_color_t ui_get_knob_color(ui_mode_t mode) {
             return lv_color_hex(0x00C853);
         case UI_MODE_STRONG_DETENTS:
             return lv_color_hex(0xD50000);
+        case UI_MODE_ON_OFF_SWITCH:
+            return lv_color_hex(0xFFB300);
         case UI_MODE_UNBOUNDED_NO_DETENTS:
         case UI_MODE_COUNT:
         default:
@@ -56,6 +58,10 @@ static void ui_apply_mode_labels(ui_mode_t mode) {
         case UI_MODE_STRONG_DETENTS:
             lv_label_set_text(mode_label, "Unbounded");
             lv_label_set_text(detent_label, "Strong Detents");
+            break;
+        case UI_MODE_ON_OFF_SWITCH:
+            lv_label_set_text(mode_label, "On / Off");
+            lv_label_set_text(detent_label, "Snap switch");
             break;
         case UI_MODE_COUNT:
         default:
@@ -177,13 +183,19 @@ void ui_set_mode(ui_mode_t mode) {
 }
 
 void ui_set_center_value(uint16_t value) {
-    if (value_label != NULL && mode_label != NULL && detent_label != NULL) {
-        static char label_text[16];
-        snprintf(label_text, sizeof(label_text), "%u", value);
-        ui_set_primary_text(label_text);
-        lv_obj_set_style_text_font(value_label, &lv_font_montserrat_48, LV_PART_MAIN);
-        lv_obj_clear_flag(mode_label, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(detent_label, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_center(text_container);
+    static char label_text[16];
+    snprintf(label_text, sizeof(label_text), "%u", value);
+    ui_set_center_text(label_text);
+}
+
+void ui_set_center_text(const char *text) {
+    if (value_label == NULL || mode_label == NULL || detent_label == NULL || text == NULL) {
+        return;
     }
+
+    ui_set_primary_text(text);
+    lv_obj_set_style_text_font(value_label, &lv_font_montserrat_48, LV_PART_MAIN);
+    lv_obj_clear_flag(mode_label, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(detent_label, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_center(text_container);
 }

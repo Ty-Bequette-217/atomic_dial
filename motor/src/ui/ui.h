@@ -8,6 +8,7 @@ typedef enum {
     UI_MODE_UNBOUNDED_NO_DETENTS = 0,
     UI_MODE_SOFT_DETENTS,
     UI_MODE_STRONG_DETENTS,
+    UI_MODE_ON_OFF_SWITCH,
     UI_MODE_COUNT
 } ui_mode_t;
 
@@ -25,5 +26,8 @@ void ui_set_mode(ui_mode_t mode);
 
 // Updates the centered text shown on the display
 void ui_set_center_value(uint16_t value);
+
+// Updates the centered text shown on the display with an arbitrary label
+void ui_set_center_text(const char *text);
 
 #endif // UI_H

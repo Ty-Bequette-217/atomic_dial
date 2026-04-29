@@ -16,6 +16,18 @@ constexpr float kPi = 3.1415926535897932385f;
 constexpr float kDegToRad = 0.017453292519943295f;
 constexpr float kRadToDeg = 57.29577951308232f;
 
+ui_mode_t current_mode = UI_MODE_UNBOUNDED_NO_DETENTS;
+bool initialized = false;
+float latest_angle_rad = 0.0f;
+float latest_velocity_rad_s = 0.0f;
+float latest_unwrapped_angle_rad = 0.0f;
+float last_wrapped_angle_rad = 0.0f;
+uint8_t latest_switch_position = 0;
+float switch_logical_offset_rad = 0.0f;
+float switch_off_anchor_rad = 0.0f;
+float switch_on_anchor_rad = 0.0f;
+uint32_t switch_idle_start_ms = 0;
+
 float wrapAngleDelta(float delta) {
     while (delta > kPi) {
         delta -= kTwoPi;
@@ -24,6 +36,88 @@ float wrapAngleDelta(float delta) {
         delta += kTwoPi;
     }
     return delta;
+}
+
+float wrapAnglePositive(float angle) {
+    while (angle >= kTwoPi) {
+        angle -= kTwoPi;
+    }
+    while (angle < 0.0f) {
+        angle += kTwoPi;
+    }
+    return angle;
+}
+
+void updateUnwrappedAngle(float wrapped_angle) {
+    const float delta = wrapAngleDelta(wrapped_angle - last_wrapped_angle_rad);
+    latest_unwrapped_angle_rad += delta;
+    last_wrapped_angle_rad = wrapped_angle;
+}
+
+float distanceToSegment(float value, float start, float end) {
+    if (value < start) {
+        return start - value;
+    }
+    if (value > end) {
+        return value - end;
+    }
+    return 0.0f;
+}
+
+void initializeSwitchAnchors(float unwrapped_angle) {
+    const float off_base = MOTOR_SWITCH_OFF_ANGLE_DEG * kDegToRad;
+    const float on_base = MOTOR_SWITCH_ON_ANGLE_DEG * kDegToRad;
+    const float span = wrapAnglePositive(on_base - off_base);
+    const float cycle = floorf((unwrapped_angle - off_base) / kTwoPi);
+
+    float best_off = off_base + cycle * kTwoPi;
+    float best_distance = INFINITY;
+    for (int offset = -1; offset <= 1; ++offset) {
+        const float candidate_off = off_base + (cycle + offset) * kTwoPi;
+        const float candidate_on = candidate_off + span;
+        const float candidate_distance = distanceToSegment(unwrapped_angle, candidate_off, candidate_on);
+        if (candidate_distance < best_distance) {
+            best_distance = candidate_distance;
+            best_off = candidate_off;
+        }
+    }
+
+    switch_off_anchor_rad = best_off;
+    switch_on_anchor_rad = best_off + span;
+    const float midpoint = 0.5f * (switch_off_anchor_rad + switch_on_anchor_rad);
+    latest_switch_position = (unwrapped_angle >= midpoint) ? 1 : 0;
+    switch_logical_offset_rad = 0.0f;
+}
+
+float switchLogicalAngle(void) {
+    return latest_unwrapped_angle_rad + switch_logical_offset_rad;
+}
+
+bool switchIsInSpan(float logical_angle) {
+    return logical_angle >= switch_off_anchor_rad && logical_angle <= switch_on_anchor_rad;
+}
+
+void recenterSwitchLogicalAngleToLatchedEndpoint(void) {
+    const float target = latest_switch_position == 0 ? switch_off_anchor_rad : switch_on_anchor_rad;
+    switch_logical_offset_rad += target - switchLogicalAngle();
+}
+
+void updateSwitchIdleRecentering(bool in_switch_span, float velocity) {
+    if (in_switch_span || fabsf(velocity) > MOTOR_SWITCH_IDLE_RECENTER_VELOCITY_RAD_S) {
+        switch_idle_start_ms = 0;
+        return;
+    }
+
+    const uint32_t now_ms = to_ms_since_boot(get_absolute_time());
+    if (switch_idle_start_ms == 0) {
+        switch_idle_start_ms = now_ms;
+        return;
+    }
+
+    if (now_ms - switch_idle_start_ms >= MOTOR_SWITCH_IDLE_RECENTER_DELAY_MS) {
+        recenterSwitchLogicalAngleToLatchedEndpoint();
+        switch_idle_start_ms = 0;
+    }
 }
 
 class AS5600SimpleFOCSensor : public Sensor {
@@ -120,15 +214,11 @@ BLDCDriver6PWM driver(
     MOTOR_PHASE_W_HIGH_PIN, MOTOR_PHASE_W_LOW_PIN
 );
 
-ui_mode_t current_mode = UI_MODE_UNBOUNDED_NO_DETENTS;
-bool initialized = false;
-float latest_angle_rad = 0.0f;
-float latest_velocity_rad_s = 0.0f;
-
 bool modeUsesActiveTorque(ui_mode_t mode) {
     switch (mode) {
         case UI_MODE_SOFT_DETENTS:
         case UI_MODE_STRONG_DETENTS:
+        case UI_MODE_ON_OFF_SWITCH:
             return true;
         case UI_MODE_UNBOUNDED_NO_DETENTS:
         case UI_MODE_COUNT:
@@ -157,6 +247,7 @@ float detentStrengthForMode(ui_mode_t mode) {
         case UI_MODE_STRONG_DETENTS:
             return MOTOR_STRONG_DETENT_STRENGTH;
         case UI_MODE_UNBOUNDED_NO_DETENTS:
+        case UI_MODE_ON_OFF_SWITCH:
         case UI_MODE_COUNT:
         default:
             return 0.0f;
@@ -169,6 +260,8 @@ float detentDampingForMode(ui_mode_t mode) {
             return MOTOR_SOFT_DETENT_DAMPING;
         case UI_MODE_STRONG_DETENTS:
             return MOTOR_STRONG_DETENT_DAMPING;
+        case UI_MODE_ON_OFF_SWITCH:
+            return MOTOR_SWITCH_DAMPING;
         case UI_MODE_UNBOUNDED_NO_DETENTS:
         case UI_MODE_COUNT:
         default:
@@ -182,11 +275,63 @@ float detentCenterDeadbandForMode(ui_mode_t mode) {
             return MOTOR_SOFT_DETENT_CENTER_DEADBAND_DEG * kDegToRad;
         case UI_MODE_STRONG_DETENTS:
             return MOTOR_STRONG_DETENT_CENTER_DEADBAND_DEG * kDegToRad;
+        case UI_MODE_ON_OFF_SWITCH:
+            return 0.0f;
         case UI_MODE_UNBOUNDED_NO_DETENTS:
         case UI_MODE_COUNT:
         default:
             return 0.0f;
     }
+}
+
+float switchFeedbackVoltage(float angle, float velocity) {
+    (void)angle;
+
+    const float span = switch_on_anchor_rad - switch_off_anchor_rad;
+    float logical_angle = switchLogicalAngle();
+    if (logical_angle >= switch_on_anchor_rad) {
+        latest_switch_position = 1;
+    } else if (logical_angle <= switch_off_anchor_rad) {
+        latest_switch_position = 0;
+    }
+
+    bool in_switch_span = switchIsInSpan(logical_angle);
+    updateSwitchIdleRecentering(in_switch_span, velocity);
+    logical_angle = switchLogicalAngle();
+    in_switch_span = switchIsInSpan(logical_angle);
+
+    float voltage = 0.0f;
+    if (in_switch_span) {
+        const float progress = fminf(fmaxf((logical_angle - switch_off_anchor_rad) / span, 0.0f), 1.0f);
+        const float hill = sinf(progress * kPi);
+        const float direction = latest_switch_position == 0 ? -1.0f : 1.0f;
+        voltage = (direction * MOTOR_SWITCH_INNER_STRENGTH * hill)
+                - (MOTOR_SWITCH_DAMPING * velocity);
+    } else {
+        const float target = latest_switch_position == 0 ? switch_off_anchor_rad : switch_on_anchor_rad;
+        const float error = target - logical_angle;
+
+        voltage = (MOTOR_SWITCH_OUTER_STRENGTH * tanhf(error / kPi))
+                - (MOTOR_SWITCH_DAMPING * velocity);
+    }
+
+    if (voltage > MOTOR_VOLTAGE_LIMIT) {
+        voltage = MOTOR_VOLTAGE_LIMIT;
+    } else if (voltage < -MOTOR_VOLTAGE_LIMIT) {
+        voltage = -MOTOR_VOLTAGE_LIMIT;
+    }
+    return voltage;
+}
+
+float switchDisplayAngleDegrees(void) {
+    float clamped_logical_angle = switchLogicalAngle();
+    if (clamped_logical_angle < switch_off_anchor_rad) {
+        clamped_logical_angle = switch_off_anchor_rad;
+    } else if (clamped_logical_angle > switch_on_anchor_rad) {
+        clamped_logical_angle = switch_on_anchor_rad;
+    }
+
+    return wrapAnglePositive(clamped_logical_angle) * kRadToDeg;
 }
 
 float detentFeedbackVoltage(float angle, float velocity) {
@@ -268,7 +413,11 @@ extern "C" bool motor_feedback_init(ui_mode_t initial_mode) {
     }
 
     latest_angle_rad = sensor.getAngle();
+    latest_unwrapped_angle_rad = latest_angle_rad;
+    last_wrapped_angle_rad = latest_angle_rad;
     latest_velocity_rad_s = 0.0f;
+    switch_idle_start_ms = 0;
+    initializeSwitchAnchors(latest_unwrapped_angle_rad);
     initialized = true;
     applyModeState(current_mode);
     return true;
@@ -276,6 +425,10 @@ extern "C" bool motor_feedback_init(ui_mode_t initial_mode) {
 
 extern "C" void motor_feedback_set_mode(ui_mode_t mode) {
     current_mode = mode;
+    if (initialized && mode == UI_MODE_ON_OFF_SWITCH) {
+        switch_idle_start_ms = 0;
+        initializeSwitchAnchors(latest_unwrapped_angle_rad);
+    }
     applyModeState(mode);
     printf("Motor feedback mode: %d\n", (int)mode);
 }
@@ -289,13 +442,16 @@ extern "C" void motor_feedback_update(void) {
         motor.loopFOC();
     }
     const float angle = sensor.getAngle();
+    updateUnwrappedAngle(angle);
     const float velocity = sensor.filteredVelocity();
     latest_angle_rad = angle;
     latest_velocity_rad_s = velocity;
     float voltage = 0.0f;
 
     if (modeUsesActiveTorque(current_mode)) {
-        voltage = detentFeedbackVoltage(angle, velocity);
+        voltage = (current_mode == UI_MODE_ON_OFF_SWITCH)
+            ? switchFeedbackVoltage(angle, velocity)
+            : detentFeedbackVoltage(angle, velocity);
         motor.move(voltage);
     }
 
@@ -320,5 +476,23 @@ extern "C" bool motor_feedback_get_angle_degrees(float *degrees) {
     if (*degrees < 0.0f) {
         *degrees += 360.0f;
     }
+    return true;
+}
+
+extern "C" bool motor_feedback_get_switch_position(uint8_t *position) {
+    if (!initialized || position == nullptr) {
+        return false;
+    }
+
+    *position = latest_switch_position;
+    return true;
+}
+
+extern "C" bool motor_feedback_get_switch_display_degrees(float *degrees) {
+    if (!initialized || degrees == nullptr) {
+        return false;
+    }
+
+    *degrees = switchDisplayAngleDegrees();
     return true;
 }

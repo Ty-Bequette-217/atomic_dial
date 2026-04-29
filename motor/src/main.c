@@ -70,6 +70,10 @@ static bool read_display_angle_degrees(ui_mode_t mode, float *degrees) {
     return motor_feedback_get_angle_degrees(degrees);
 }
 
+static bool mode_is_on_off_switch(ui_mode_t mode) {
+    return mode == UI_MODE_ON_OFF_SWITCH;
+}
+
 // --- BUTTON LOGIC ---
 static void button_gpio_isr(void) {
     if (gpio_get_irq_event_mask(BUTTON_PIN) & GPIO_IRQ_EDGE_RISE) {
@@ -189,8 +193,30 @@ int main() {
                 }
                 filtered_angle = 0.0f;
                 ui_set_mode(current_mode);
-                ui_update_arc(0);
-                ui_set_center_value(0);
+                if (mode_is_on_off_switch(current_mode)) {
+                    uint8_t switch_position = 0;
+                    float switch_display_angle = MOTOR_SWITCH_OFF_ANGLE_DEG;
+                    motor_feedback_get_switch_position(&switch_position);
+                    motor_feedback_get_switch_display_degrees(&switch_display_angle);
+                    ui_update_arc((uint16_t)switch_display_angle);
+                    ui_set_center_text(switch_position ? "ON" : "OFF");
+                } else {
+                    ui_update_arc(0);
+                    ui_set_center_value(0);
+                }
+            }
+
+            if (mode_is_on_off_switch(current_mode)) {
+                uint8_t switch_position = 0;
+                float switch_display_angle = 0.0f;
+                if (!motor_feedback_get_switch_position(&switch_position)
+                        || !motor_feedback_get_switch_display_degrees(&switch_display_angle)) {
+                    continue;
+                }
+
+                ui_update_arc((uint16_t)switch_display_angle);
+                ui_set_center_text(switch_position ? "ON" : "OFF");
+                continue;
             }
 
             float mapped_angle;
