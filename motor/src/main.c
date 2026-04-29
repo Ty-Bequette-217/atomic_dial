@@ -32,6 +32,44 @@ static uint32_t last_strain_gauge_trigger_ms = 0;
 static const int32_t STRAIN_GAUGE_PRESS_THRESHOLD = -300;
 static const uint32_t STRAIN_GAUGE_DEBOUNCE_MS = 250;
 
+static float wrap_degrees_360(float degrees) {
+    while (degrees >= 360.0f) {
+        degrees -= 360.0f;
+    }
+    while (degrees < 0.0f) {
+        degrees += 360.0f;
+    }
+    return degrees;
+}
+
+static float wrap_degrees_delta(float degrees) {
+    while (degrees > 180.0f) {
+        degrees -= 360.0f;
+    }
+    while (degrees < -180.0f) {
+        degrees += 360.0f;
+    }
+    return degrees;
+}
+
+static bool read_display_angle_degrees(ui_mode_t mode, float *degrees) {
+    if (degrees == NULL) {
+        return false;
+    }
+
+    if (mode == UI_MODE_UNBOUNDED_NO_DETENTS) {
+        uint16_t raw_angle;
+        if (!as5600_read_raw(&raw_angle)) {
+            return false;
+        }
+
+        *degrees = (raw_angle * 360.0f) / 4095.0f;
+        return true;
+    }
+
+    return motor_feedback_get_angle_degrees(degrees);
+}
+
 // --- BUTTON LOGIC ---
 static void button_gpio_isr(void) {
     if (gpio_get_irq_event_mask(BUTTON_PIN) & GPIO_IRQ_EDGE_RISE) {
@@ -85,7 +123,7 @@ int main() {
     stdio_init_all();
     float filtered_angle = 0.0f;
     float angle_offset = 0.0f;
-    const float angle_lpf_alpha = 0.15f;
+    const float angle_lpf_alpha = MOTOR_UI_FILTER_ALPHA;
     ui_mode_t current_mode = UI_MODE_UNBOUNDED_NO_DETENTS;
     absolute_time_t next_ui_update = make_timeout_time_ms(10);
 
@@ -141,7 +179,7 @@ int main() {
                 motor_feedback_set_mode(current_mode);
 
                 float motor_angle;
-                if (motor_feedback_get_angle_degrees(&motor_angle)) {
+                if (read_display_angle_degrees(current_mode, &motor_angle)) {
                     angle_offset = motor_angle;
                 } else {
                     uint16_t raw_angle;
@@ -156,7 +194,7 @@ int main() {
             }
 
             float mapped_angle;
-            if (!motor_feedback_get_angle_degrees(&mapped_angle)) {
+            if (!read_display_angle_degrees(current_mode, &mapped_angle)) {
                 uint16_t raw_angle;
                 if (as5600_read_raw(&raw_angle)) {
                     mapped_angle = (raw_angle * 360.0f) / 4095.0f;
@@ -166,10 +204,10 @@ int main() {
             }
 
             float relative_angle = mapped_angle - angle_offset;
-            if (relative_angle < 0.0f) {
-                relative_angle += 360.0f;
-            }
-            filtered_angle += angle_lpf_alpha * (relative_angle - filtered_angle);
+            relative_angle = wrap_degrees_360(relative_angle);
+            filtered_angle = wrap_degrees_360(
+                filtered_angle + angle_lpf_alpha * wrap_degrees_delta(relative_angle - filtered_angle)
+            );
             ui_update_arc((uint16_t)filtered_angle);
             ui_set_center_value((uint16_t)filtered_angle);
         }

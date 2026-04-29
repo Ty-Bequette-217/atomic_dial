@@ -16,12 +16,23 @@ constexpr float kPi = 3.1415926535897932385f;
 constexpr float kDegToRad = 0.017453292519943295f;
 constexpr float kRadToDeg = 57.29577951308232f;
 
+float wrapAngleDelta(float delta) {
+    while (delta > kPi) {
+        delta -= kTwoPi;
+    }
+    while (delta < -kPi) {
+        delta += kTwoPi;
+    }
+    return delta;
+}
+
 class AS5600SimpleFOCSensor : public Sensor {
 public:
     bool begin() {
         ready_ = as5600_read_raw(&last_raw_);
         if (ready_) {
             filtered_angle_ = rawToRadians(last_raw_);
+            last_update_us_ = time_us_64();
             Sensor::init();
         }
         return ready_;
@@ -44,6 +55,10 @@ public:
         return true;
     }
 
+    float filteredVelocity() const {
+        return filtered_velocity_;
+    }
+
 protected:
     float getSensorAngle() override {
         uint16_t raw_angle;
@@ -59,22 +74,31 @@ protected:
 private:
     void updateFilteredAngle(uint16_t raw_angle) {
         const float raw_radians = rawToRadians(raw_angle);
-        float delta = raw_radians - filtered_angle_;
+        const float delta = wrapAngleDelta(raw_radians - filtered_angle_);
+        const uint64_t now_us = time_us_64();
 
-        while (delta > kPi) {
-            delta -= kTwoPi;
-        }
-        while (delta < -kPi) {
-            delta += kTwoPi;
-        }
-
-        filtered_angle_ += MOTOR_ENCODER_FILTER_ALPHA * delta;
+        const float filtered_delta = MOTOR_ENCODER_FILTER_ALPHA * delta;
+        filtered_angle_ += filtered_delta;
         while (filtered_angle_ >= kTwoPi) {
             filtered_angle_ -= kTwoPi;
         }
         while (filtered_angle_ < 0.0f) {
             filtered_angle_ += kTwoPi;
         }
+
+        if (last_update_us_ != 0 && now_us > last_update_us_) {
+            const float dt = (float)(now_us - last_update_us_) * 1.0e-6f;
+            if (dt > 0.0f) {
+                const float instantaneous_velocity = filtered_delta / dt;
+                filtered_velocity_ +=
+                    MOTOR_VELOCITY_FILTER_ALPHA * (instantaneous_velocity - filtered_velocity_);
+                if (fabsf(filtered_velocity_) < MOTOR_VELOCITY_NOISE_DEADBAND_RAD_S) {
+                    filtered_velocity_ = 0.0f;
+                }
+            }
+        }
+
+        last_update_us_ = now_us;
     }
 
     static float rawToRadians(uint16_t raw_angle) {
@@ -83,6 +107,8 @@ private:
 
     uint16_t last_raw_ = 0;
     float filtered_angle_ = 0.0f;
+    float filtered_velocity_ = 0.0f;
+    uint64_t last_update_us_ = 0;
     bool ready_ = false;
 };
 
@@ -96,6 +122,20 @@ BLDCDriver6PWM driver(
 
 ui_mode_t current_mode = UI_MODE_UNBOUNDED_NO_DETENTS;
 bool initialized = false;
+float latest_angle_rad = 0.0f;
+float latest_velocity_rad_s = 0.0f;
+
+bool modeUsesActiveTorque(ui_mode_t mode) {
+    switch (mode) {
+        case UI_MODE_SOFT_DETENTS:
+        case UI_MODE_STRONG_DETENTS:
+            return true;
+        case UI_MODE_UNBOUNDED_NO_DETENTS:
+        case UI_MODE_COUNT:
+        default:
+            return false;
+    }
+}
 
 bool initFOCWithRetry(void) {
     if (motor.initFOC()) {
@@ -123,6 +163,32 @@ float detentStrengthForMode(ui_mode_t mode) {
     }
 }
 
+float detentDampingForMode(ui_mode_t mode) {
+    switch (mode) {
+        case UI_MODE_SOFT_DETENTS:
+            return MOTOR_SOFT_DETENT_DAMPING;
+        case UI_MODE_STRONG_DETENTS:
+            return MOTOR_STRONG_DETENT_DAMPING;
+        case UI_MODE_UNBOUNDED_NO_DETENTS:
+        case UI_MODE_COUNT:
+        default:
+            return 0.0f;
+    }
+}
+
+float detentCenterDeadbandForMode(ui_mode_t mode) {
+    switch (mode) {
+        case UI_MODE_SOFT_DETENTS:
+            return MOTOR_SOFT_DETENT_CENTER_DEADBAND_DEG * kDegToRad;
+        case UI_MODE_STRONG_DETENTS:
+            return MOTOR_STRONG_DETENT_CENTER_DEADBAND_DEG * kDegToRad;
+        case UI_MODE_UNBOUNDED_NO_DETENTS:
+        case UI_MODE_COUNT:
+        default:
+            return 0.0f;
+    }
+}
+
 float detentFeedbackVoltage(float angle, float velocity) {
     const float strength = detentStrengthForMode(current_mode);
     if (strength <= 0.0f) {
@@ -131,17 +197,18 @@ float detentFeedbackVoltage(float angle, float velocity) {
 
     const float spacing = MOTOR_DETENT_SPACING_DEG * kDegToRad;
     const float detent_center = roundf(angle / spacing) * spacing;
-    float error = detent_center - angle;
+    float error = wrapAngleDelta(detent_center - angle);
 
-    while (error > kPi) {
-        error -= kTwoPi;
-    }
-    while (error < -kPi) {
-        error += kTwoPi;
+    const float center_deadband = detentCenterDeadbandForMode(current_mode);
+    if (fabsf(error) <= center_deadband) {
+        error = 0.0f;
+    } else {
+        error -= copysignf(center_deadband, error);
     }
 
     const float half_spacing = spacing * 0.5f;
-    float voltage = (strength * (error / half_spacing)) - (MOTOR_DETENT_DAMPING * velocity);
+    float voltage = (strength * (error / half_spacing))
+                  - (detentDampingForMode(current_mode) * velocity);
     if (voltage > MOTOR_VOLTAGE_LIMIT) {
         voltage = MOTOR_VOLTAGE_LIMIT;
     } else if (voltage < -MOTOR_VOLTAGE_LIMIT) {
@@ -149,6 +216,18 @@ float detentFeedbackVoltage(float angle, float velocity) {
     }
 
     return voltage;
+}
+
+void applyModeState(ui_mode_t mode) {
+    if (!initialized) {
+        return;
+    }
+
+    if (modeUsesActiveTorque(mode)) {
+        motor.enable();
+    } else {
+        motor.disable();
+    }
 }
 
 } // namespace
@@ -188,12 +267,16 @@ extern "C" bool motor_feedback_init(ui_mode_t initial_mode) {
         return false;
     }
 
+    latest_angle_rad = sensor.getAngle();
+    latest_velocity_rad_s = 0.0f;
     initialized = true;
+    applyModeState(current_mode);
     return true;
 }
 
 extern "C" void motor_feedback_set_mode(ui_mode_t mode) {
     current_mode = mode;
+    applyModeState(mode);
     printf("Motor feedback mode: %d\n", (int)mode);
 }
 
@@ -202,11 +285,19 @@ extern "C" void motor_feedback_update(void) {
         return;
     }
 
-    motor.loopFOC();
+    if (modeUsesActiveTorque(current_mode)) {
+        motor.loopFOC();
+    }
     const float angle = sensor.getAngle();
-    const float velocity = sensor.getVelocity();
-    const float voltage = detentFeedbackVoltage(angle, velocity);
-    motor.move(voltage);
+    const float velocity = sensor.filteredVelocity();
+    latest_angle_rad = angle;
+    latest_velocity_rad_s = velocity;
+    float voltage = 0.0f;
+
+    if (modeUsesActiveTorque(current_mode)) {
+        voltage = detentFeedbackVoltage(angle, velocity);
+        motor.move(voltage);
+    }
 
     static uint32_t next_debug_ms = 0;
     const uint32_t now_ms = to_ms_since_boot(get_absolute_time());
@@ -225,7 +316,7 @@ extern "C" bool motor_feedback_get_angle_degrees(float *degrees) {
         return false;
     }
 
-    *degrees = fmodf(sensor.getAngle() * kRadToDeg, 360.0f);
+    *degrees = fmodf(latest_angle_rad * kRadToDeg, 360.0f);
     if (*degrees < 0.0f) {
         *degrees += 360.0f;
     }
