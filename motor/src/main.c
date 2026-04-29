@@ -27,8 +27,13 @@
 // --- GLOBALS & STATE ---
 static volatile bool mode_advance_requested = false;
 static bool strain_gauge_pressed = false;
+static volatile bool button_press_latched = false;
+static volatile uint32_t last_button_trigger_us = 0;
+static uint32_t button_release_candidate_us = 0;
 static uint32_t last_strain_gauge_trigger_ms = 0;
 
+static const uint32_t BUTTON_DEBOUNCE_US = 50000;
+static const uint32_t BUTTON_RELEASE_DEBOUNCE_US = 20000;
 static const int32_t STRAIN_GAUGE_PRESS_THRESHOLD = -300;
 static const uint32_t STRAIN_GAUGE_DEBOUNCE_MS = 250;
 
@@ -63,7 +68,7 @@ static bool read_display_angle_degrees(ui_mode_t mode, float *degrees) {
             return false;
         }
 
-        *degrees = (raw_angle * 360.0f) / 4095.0f;
+        *degrees = (raw_angle * 360.0f) / 4096.0f;
         return true;
     }
 
@@ -74,17 +79,63 @@ static bool mode_is_on_off_switch(ui_mode_t mode) {
     return mode == UI_MODE_ON_OFF_SWITCH;
 }
 
+static float read_current_angle_offset(ui_mode_t mode) {
+    float angle = 0.0f;
+    if (read_display_angle_degrees(mode, &angle)) {
+        return angle;
+    }
+
+    uint16_t raw_angle;
+    if (as5600_read_raw(&raw_angle)) {
+        return (raw_angle * 360.0f) / 4096.0f;
+    }
+
+    return 0.0f;
+}
+
 // --- BUTTON LOGIC ---
 static void button_gpio_isr(void) {
     if (gpio_get_irq_event_mask(BUTTON_PIN) & GPIO_IRQ_EDGE_RISE) {
         gpio_acknowledge_irq(BUTTON_PIN, GPIO_IRQ_EDGE_RISE);
+
+        uint32_t now_us = time_us_32();
+        if (button_press_latched || (uint32_t)(now_us - last_button_trigger_us) < BUTTON_DEBOUNCE_US) {
+            return;
+        }
+
+        button_press_latched = true;
+        last_button_trigger_us = now_us;
         mode_advance_requested = true;
+    }
+}
+
+static void button_update(void) {
+    if (!button_press_latched) {
+        button_release_candidate_us = 0;
+        return;
+    }
+
+    if (gpio_get(BUTTON_PIN)) {
+        button_release_candidate_us = 0;
+        return;
+    }
+
+    uint32_t now_us = time_us_32();
+    if (button_release_candidate_us == 0) {
+        button_release_candidate_us = now_us;
+        return;
+    }
+
+    if ((uint32_t)(now_us - button_release_candidate_us) >= BUTTON_RELEASE_DEBOUNCE_US) {
+        button_press_latched = false;
+        button_release_candidate_us = 0;
     }
 }
 
 static void button_init(void) {
     gpio_init(BUTTON_PIN);
     gpio_set_dir(BUTTON_PIN, GPIO_IN);
+    gpio_pull_down(BUTTON_PIN);
 
     gpio_add_raw_irq_handler_masked(1u << BUTTON_PIN, button_gpio_isr);
     gpio_set_irq_enabled(BUTTON_PIN, GPIO_IRQ_EDGE_RISE, true);
@@ -169,8 +220,11 @@ int main() {
         printf("Motor feedback disabled\n");
     }
 
+    angle_offset = read_current_angle_offset(current_mode);
+
     while (1) {
         motor_feedback_update();
+        button_update();
 
         if (time_reached(next_ui_update)) {
             next_ui_update = make_timeout_time_ms(10);
@@ -182,15 +236,7 @@ int main() {
                 current_mode = (ui_mode_t)((current_mode + 1) % UI_MODE_COUNT);
                 motor_feedback_set_mode(current_mode);
 
-                float motor_angle;
-                if (read_display_angle_degrees(current_mode, &motor_angle)) {
-                    angle_offset = motor_angle;
-                } else {
-                    uint16_t raw_angle;
-                    if (as5600_read_raw(&raw_angle)) {
-                        angle_offset = (raw_angle * 360.0f) / 4095.0f;
-                    }
-                }
+                angle_offset = read_current_angle_offset(current_mode);
                 filtered_angle = 0.0f;
                 ui_set_mode(current_mode);
                 if (mode_is_on_off_switch(current_mode)) {
@@ -223,7 +269,7 @@ int main() {
             if (!read_display_angle_degrees(current_mode, &mapped_angle)) {
                 uint16_t raw_angle;
                 if (as5600_read_raw(&raw_angle)) {
-                    mapped_angle = (raw_angle * 360.0f) / 4095.0f;
+                    mapped_angle = (raw_angle * 360.0f) / 4096.0f;
                 } else {
                     continue;
                 }
