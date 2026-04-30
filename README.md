@@ -1,3 +1,4 @@
+#🚧 GitHub still in progress 🚧
 # The Atomic Dial
 ### by Yonathan Gur, Ryan Gelston, Ty Bequette, and Cody Fuh
 
